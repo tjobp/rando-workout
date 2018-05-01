@@ -24,8 +24,7 @@ public class WorkoutParametersSelectionActivity extends AppCompatActivity {
     Spinner topMuscleSpinner;
     Spinner bottomMuscleSpinner;
 
-    // Hashtable to map muscle name to its ID number (for REST API)
-    Hashtable<String, Integer> muscleNamesAndIds = new Hashtable<String, Integer>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,17 +34,6 @@ public class WorkoutParametersSelectionActivity extends AppCompatActivity {
         // instantiate spinners
         topMuscleSpinner = (Spinner) findViewById(R.id.topMuscleSpinner);
         bottomMuscleSpinner = (Spinner) findViewById(R.id.bottomMuscleSpinner);
-
-        // map muscles to their IDs (API)
-        muscleNamesAndIds.put("Biceps", 1); //Biceps brachii (Biceps femoris are 11)
-        muscleNamesAndIds.put("Shoulders", 2); //Anterior deltoid
-        muscleNamesAndIds.put("Chest", 4); //Pectoralis major
-        muscleNamesAndIds.put("Triceps", 5); //Triceps brachii
-        muscleNamesAndIds.put("Abdominal", 6); //Rectus abdominis
-        muscleNamesAndIds.put("Calves", 7); //Gastrocnemius (soleus is 15)
-        muscleNamesAndIds.put("Legs", 8); //Gluteus maximus (quads are 10)
-        muscleNamesAndIds.put("Traps", 9); //Trapezius
-        muscleNamesAndIds.put("Back", 12); //Latissimus dorsi
 
 
         // create list of muscle group options to select from muscle spinners
@@ -71,6 +59,12 @@ public class WorkoutParametersSelectionActivity extends AppCompatActivity {
 
     // this function is called when the generateWorkoutButton is clicked
     public void generateWorkoutButtonClick(View v) {
+
+        String firstMuscle = topMuscleSpinner.getSelectedItem().toString();
+        String secondMuscle = bottomMuscleSpinner.getSelectedItem().toString();
+
+        goToGeneratedRandoWorkoutActivity(firstMuscle, secondMuscle);
+        /*
 
         ExerciseAPIConnection firstConnectionToExerciseAPITask = new ExerciseAPIConnection();
         ExerciseAPIConnection secondConnectionToExerciseAPITask = new ExerciseAPIConnection();
@@ -104,6 +98,7 @@ public class WorkoutParametersSelectionActivity extends AppCompatActivity {
         JSONArray randoWorkout = generateWorkout(firstMuscleExerciseList, secondMuscleExerciseList);
 
         goToGeneratedRandoWorkoutActivity(randoWorkout);
+        */
     }
 
 
@@ -205,15 +200,19 @@ public class WorkoutParametersSelectionActivity extends AppCompatActivity {
 
     }
 
-    public void goToGeneratedRandoWorkoutActivity(JSONArray randoWorkout) {
+    public void goToGeneratedRandoWorkoutActivity(String firstMuscle, String secondMuscle) {
 
         Intent goToRandoWorkoutActivityIntent = new Intent(getApplicationContext(), GeneratedRandoWorkoutActivity.class);
 
-        Bundle bundle = new Bundle();
+        //Bundle bundle = new Bundle();
 
-        bundle.putString("exerciseList", randoWorkout.toString());
+        //bundle.putString("exerciseList", randoWorkout.toString());
 
-        goToRandoWorkoutActivityIntent.putExtras(bundle);
+        //goToRandoWorkoutActivityIntent.putExtras(bundle);
+
+        goToRandoWorkoutActivityIntent.putExtra("firstMuscle", firstMuscle);
+
+        goToRandoWorkoutActivityIntent.putExtra("secondMuscle", secondMuscle);
 
         startActivity(goToRandoWorkoutActivityIntent);
 

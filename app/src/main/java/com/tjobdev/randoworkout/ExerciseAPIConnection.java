@@ -61,4 +61,9 @@ public class ExerciseAPIConnection extends AsyncTask<String, Void, JSONArray> {
 
         return null;
     }
+
+    @Override
+    protected void onPostExecute(JSONArray result) {
+
+    }
 }
