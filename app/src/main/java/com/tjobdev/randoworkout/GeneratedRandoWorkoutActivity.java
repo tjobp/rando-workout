@@ -11,44 +11,57 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
 
 public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
 
     // Hashtable to map muscle name to its ID number (for REST API)
     Hashtable<String, Integer> muscleNamesAndIds = new Hashtable<String, Integer>();
 
+    ListView randoWorkoutListView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_generated_random_workout);
 
-        ListView workoutList = (ListView) findViewById(R.id.randomWorkoutList);
+        // base randoWorkoutListView on ArrayList of exercisesItems
+        randoWorkoutListView = (ListView) findViewById(R.id.randomWorkoutList);
 
-        // map muscles to their IDs (API)
-        muscleNamesAndIds.put("Biceps", 1); //Biceps brachii (Biceps femoris are 11)
-        muscleNamesAndIds.put("Shoulders", 2); //Anterior deltoid
-        muscleNamesAndIds.put("Chest", 4); //Pectoralis major
-        muscleNamesAndIds.put("Triceps", 5); //Triceps brachii
-        muscleNamesAndIds.put("Abdominal", 6); //Rectus abdominis
-        muscleNamesAndIds.put("Calves", 7); //Gastrocnemius (soleus is 15)
-        muscleNamesAndIds.put("Legs", 8); //Gluteus maximus (quads are 10)
-        muscleNamesAndIds.put("Traps", 9); //Trapezius
-        muscleNamesAndIds.put("Back", 12); //Latissimus dorsi
+        //create ArrayAdapter for the randoWorkoutListView and set the text color to white
+        ArrayAdapter<String> randoWorkoutListAdapter = new ArrayAdapter<String>(
+                this, android.R.layout.simple_list_item_1, new ArrayList<String>()){
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view =super.getView(position, convertView, parent);
+
+                TextView textView=(TextView) view.findViewById(android.R.id.text1);
+
+                textView.setTextColor(Color.WHITE);
+
+                return view;
+
+            }
+
+        };
+
+        randoWorkoutListView.setAdapter(randoWorkoutListAdapter);
 
         // determine which muscles were picked from WorkoutParameterSelectionActivity
         Intent intent = getIntent();
@@ -59,242 +72,179 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
         Log.i("First Muscle", firstMuscle);
         Log.i("Second Muscle", secondMuscle);
 
-        // generate workout of 3 exercises from firstMuscle and 3 exercises from secondMuscle
-        JSONArray randoWorkout = generateWorkout(firstMuscle, secondMuscle);
+        new TaskToGenerateWorkout().execute(firstMuscle);
 
-        // publish workout list to UI list view
-        ArrayList<String> items = new ArrayList<String>();
-        for(int i =0; i < randoWorkout.length(); i++) {
+        new TaskToGenerateWorkout().execute(secondMuscle);
 
-            JSONObject jsonData = null;
-
-            String exerciseName = "";
-
-            try {
-                jsonData = randoWorkout.getJSONObject(i);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            try {
-                exerciseName = jsonData.getString("name");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            items.add(exerciseName);
-
-            Log.d(exerciseName, "JSON exercise");
-
-        }
-
-        ArrayAdapter<String> exercisesToListViewAdapter = new ArrayAdapter<String>(
-                this, android.R.layout.simple_list_item_1, items){
-
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                View view =super.getView(position, convertView, parent);
-
-                TextView textView=(TextView) view.findViewById(android.R.id.text1);
-
-                /*YOUR CHOICE OF COLOR*/
-                textView.setTextColor(Color.WHITE);
-
-                return view;
-
-            }
-
-        };
-
-        workoutList.setAdapter(exercisesToListViewAdapter);
-
+        // map muscles to their IDs (for REST API)
+        muscleNamesAndIds.put("Biceps", 1); //Biceps brachii (Biceps femoris are 11)
+        muscleNamesAndIds.put("Shoulders", 2); //Anterior deltoid
+        muscleNamesAndIds.put("Chest", 4); //Pectoralis major
+        muscleNamesAndIds.put("Triceps", 5); //Triceps brachii
+        muscleNamesAndIds.put("Abdominal", 6); //Rectus abdominis
+        muscleNamesAndIds.put("Calves", 7); //Gastrocnemius (soleus is 15)
+        muscleNamesAndIds.put("Legs", 8); //Gluteus maximus (quads are 10)
+        muscleNamesAndIds.put("Traps", 9); //Trapezius
+        muscleNamesAndIds.put("Back", 12); //Latissimus dorsi
 
     }
 
-    private JSONArray generateWorkout(String firstMuscle, String secondMuscle) {
+    private class TaskToGenerateWorkout extends AsyncTask<String, String, String> {
 
-        JSONArray firstMuscleExerciseList = getMuscleWorkoutList(firstMuscle);
-        JSONArray secondMuscleExerciseList = getMuscleWorkoutList(secondMuscle);
+        ArrayAdapter<String> randoWorkoutListAdapter;
 
+        @Override
+        protected void onPreExecute() {
 
-        JSONArray randoWorkout = new JSONArray();
+            randoWorkoutListAdapter= (ArrayAdapter<String>)randoWorkoutListView.getAdapter();
 
-        int firstMuscleExerciseListSize = firstMuscleExerciseList.length();
-        int secondMuscleExerciseListSize = secondMuscleExerciseList.length();
+            //randoWorkoutListAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, randoWorkoutExerciseList);
 
-        Random randomNumber = new Random();
-        int firstExerciseIndex, secondExerciseIndex, thirdExerciseIndex;
+        }
 
+        @Override
+        protected String doInBackground(String... muscle) {
 
-        JSONObject firstExercise;
-        JSONObject secondExercise;
-        JSONObject thirdExercise;
-        JSONObject fourthExercise;
-        JSONObject fifthExercise;
-        JSONObject sixthExercise;
+            // Get all exercises for selected muscles from REST API
+            JSONArray firstMuscleExerciseList = getFullExerciseListForMuscle(muscle[0]);
 
-        try {
+            // Array for final workout list (3 exercises from each muscle)
+            JSONArray randoWorkout = new JSONArray();
 
-            firstExerciseIndex = randomNumber.nextInt(firstMuscleExerciseListSize);
+            JSONObject jsonData = null;
+            String exerciseName = "";
 
-            firstExercise = firstMuscleExerciseList.getJSONObject(firstExerciseIndex);
+            int firstMuscleExerciseListSize = firstMuscleExerciseList.length();
 
-            randoWorkout.put(firstExercise);
+            Random randomNumber = new Random();
+            int firstExerciseIndex, secondExerciseIndex, thirdExerciseIndex;
 
+            JSONObject firstExercise, secondExercise, thirdExercise;
 
-            secondExerciseIndex = randomNumber.nextInt(firstMuscleExerciseListSize);
+            // Randomly select 3 exercises from each exercise list and push each one to the list view on the Main UI thread
+            try {
 
-            while(secondExerciseIndex == firstExerciseIndex) {
+                firstExerciseIndex = randomNumber.nextInt(firstMuscleExerciseListSize);
+
+                firstExercise = firstMuscleExerciseList.getJSONObject(firstExerciseIndex);
+
+                randoWorkout.put(firstExercise);
+
+                exerciseName = firstExercise.getString("name");
+
+                publishProgress(exerciseName);
+
 
                 secondExerciseIndex = randomNumber.nextInt(firstMuscleExerciseListSize);
 
-            }
+                while(secondExerciseIndex == firstExerciseIndex) {
 
-            secondExercise = firstMuscleExerciseList.getJSONObject(secondExerciseIndex);
-
-            randoWorkout.put(secondExercise);
-
-
-            thirdExerciseIndex = randomNumber.nextInt(firstMuscleExerciseListSize);
-
-            while(thirdExerciseIndex == firstExerciseIndex || thirdExerciseIndex == secondExerciseIndex) {
-
-                thirdExerciseIndex = randomNumber.nextInt(firstMuscleExerciseListSize);
-
-            }
-
-            thirdExercise = firstMuscleExerciseList.getJSONObject(thirdExerciseIndex);
-
-            randoWorkout.put(thirdExercise);
-
-            // ***********************************************************
-            // second muscle exercises
-            // ***********************************************************
-
-            firstExerciseIndex = randomNumber.nextInt(secondMuscleExerciseListSize);
-
-            fourthExercise = secondMuscleExerciseList.getJSONObject(firstExerciseIndex);
-
-            randoWorkout.put(fourthExercise);
-
-
-            secondExerciseIndex = randomNumber.nextInt(secondMuscleExerciseListSize);
-
-            while(secondExerciseIndex == firstExerciseIndex) {
-
-                secondExerciseIndex = randomNumber.nextInt(secondMuscleExerciseListSize);
-
-            }
-
-            fifthExercise = secondMuscleExerciseList.getJSONObject(secondExerciseIndex);
-
-            randoWorkout.put(fifthExercise);
-
-
-            thirdExerciseIndex = randomNumber.nextInt(secondMuscleExerciseListSize);
-
-            while(thirdExerciseIndex == firstExerciseIndex || thirdExerciseIndex == secondExerciseIndex) {
-
-                thirdExerciseIndex = randomNumber.nextInt(secondMuscleExerciseListSize);
-
-            }
-
-            sixthExercise = secondMuscleExerciseList.getJSONObject(thirdExerciseIndex);
-
-            randoWorkout.put(sixthExercise);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        Log.i("Random workouts", randoWorkout.toString());
-        Log.i("Random workout size", Integer.toString(randoWorkout.length()));
-        return randoWorkout;
-
-
-    }
-
-    private JSONArray getMuscleWorkoutList(String muscle) {
-
-        ExerciseAPIConnection connectionToExerciseAPITask = new ExerciseAPIConnection();
-
-        JSONArray muscleExerciseList = null;
-
-        try {
-
-            // get list of exercises for selected muscle
-            muscleExerciseList = connectionToExerciseAPITask.execute("https://wger.de/api/v2/exercise/?muscles=" + muscleNamesAndIds.get(muscle).toString() + "&status=2&format=json&language=2&limit=100").get();
-
-            Log.i(muscle + " Exercise List", muscleExerciseList.toString());
-
-        } catch (InterruptedException e) {
-
-            e.printStackTrace();
-
-        } catch (ExecutionException e) {
-
-            e.printStackTrace();
-
-        }
-
-        return muscleExerciseList;
-
-    }
-
-
-    public class ExerciseAPIConnection extends AsyncTask<String, Void, JSONArray> {
-
-        @Override
-        protected JSONArray doInBackground(String... urls) {
-
-            String result = "";
-            URL exerciseAPIUrl;
-            HttpURLConnection exerciseAPIUrlConnection = null;
-            JSONArray exerciseList = null;
-
-            try {
-
-                exerciseAPIUrl = new URL(urls[0]);
-
-                exerciseAPIUrlConnection = (HttpURLConnection) exerciseAPIUrl.openConnection();
-
-                InputStream exerciseAPIInputStream = exerciseAPIUrlConnection.getInputStream();
-
-                InputStreamReader exerciseAPIInputStreamReader = new InputStreamReader(exerciseAPIInputStream);
-
-                int exerciseData = exerciseAPIInputStreamReader.read();
-
-                while (exerciseData != -1) {
-
-                    char current = (char) exerciseData;
-
-                    result += current;
-
-                    exerciseData = exerciseAPIInputStreamReader.read();
+                    secondExerciseIndex = randomNumber.nextInt(firstMuscleExerciseListSize);
 
                 }
 
-                // only return JSON Object containing list of exercises and their info
-                JSONObject jsonResult = new JSONObject(result);
-                exerciseList = jsonResult.getJSONArray("results");
+                secondExercise = firstMuscleExerciseList.getJSONObject(secondExerciseIndex);
 
-                return exerciseList;
+                randoWorkout.put(secondExercise);
 
-            }
-            catch (Exception e) {
+                exerciseName = secondExercise.getString("name");
 
+                publishProgress(exerciseName);
+
+
+                thirdExerciseIndex = randomNumber.nextInt(firstMuscleExerciseListSize);
+
+                while(thirdExerciseIndex == firstExerciseIndex || thirdExerciseIndex == secondExerciseIndex) {
+
+                    thirdExerciseIndex = randomNumber.nextInt(firstMuscleExerciseListSize);
+
+                }
+
+                thirdExercise = firstMuscleExerciseList.getJSONObject(thirdExerciseIndex);
+
+                randoWorkout.put(thirdExercise);
+
+                exerciseName = thirdExercise.getString("name");
+
+                publishProgress(exerciseName);
+
+
+                return "exercises added";
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                return null;
+
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+
+            randoWorkoutListAdapter.add(values[0]);
+
+            randoWorkoutListAdapter.notifyDataSetChanged();
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+
+            Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
+
+        }
+
+        protected JSONArray getFullExerciseListForMuscle(String muscle) {
+
+            URL exerciseApiUrl;
+            HttpURLConnection exerciseApiUrlConnection;
+            JSONArray fullMuscleExerciseList;
+            BufferedReader exerciseApiBufferReader;
+
+            try {
+
+                exerciseApiUrl = new URL("https://wger.de/api/v2/exercise/?muscles=" + muscleNamesAndIds.get(muscle) + "&status=2&format=json&language=2&limit=100");
+
+                Log.i("Rest API URL", "https://wger.de/api/v2/exercise/?muscles=" + muscleNamesAndIds.get(muscle) + "&status=2&format=json&language=2&limit=100");
+
+                exerciseApiUrlConnection = (HttpURLConnection) exerciseApiUrl.openConnection();
+
+                exerciseApiUrlConnection.connect();
+
+                InputStream exerciseAPIInputStream = exerciseApiUrlConnection.getInputStream();
+
+                exerciseApiBufferReader = new BufferedReader(new InputStreamReader(exerciseAPIInputStream));
+
+                StringBuffer buffer = new StringBuffer();
+                String line;
+
+                while ((line = exerciseApiBufferReader.readLine()) != null) {
+
+                    buffer.append(line + "\n");
+
+                }
+
+                // only return JSON Object containing list of exercises and their info - gets rid of other unnecessary JSON data
+                JSONObject jsonResult = new JSONObject(buffer.toString());
+                fullMuscleExerciseList = jsonResult.getJSONArray("results");
+
+                Log.i("Full Exercise List, " + muscle, fullMuscleExerciseList.toString());
+
+                return fullMuscleExerciseList;
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
 
             return null;
-        }
-
-        @Override
-        protected void onPostExecute(JSONArray result) {
-
-            super.onPostExecute(result);
 
         }
+
     }
 
 }

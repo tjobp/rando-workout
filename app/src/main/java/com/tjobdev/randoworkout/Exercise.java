@@ -14,8 +14,9 @@ public class Exercise {
     private String primaryMuscleExercised;
     private String secondaryMuscleExercised;
     private String exerciseDescription;
+    private int equipment;
+    private int category;
     private ArrayList<Bitmap> exercisePhotos = new ArrayList<Bitmap>();
-
 
 
 
