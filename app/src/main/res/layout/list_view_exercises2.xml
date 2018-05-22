@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/exerciseName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:layout_column="0"
+        android:layout_row="0"
+        android:textColor="@color/colorText"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_column="1"
+        android:layout_row="0">
+
+        <TextView
+            android:id="@+id/setsNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:text="3"
+            android:textColor="@color/colorText"/>
+
+        <TextView
+            android:id="@+id/setsText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/setsNumber"
+            android:text="@string/sets"
+            android:textColor="@color/colorText"/>
+
+        <TextView
+            android:id="@+id/byText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toEndOf="@+id/setsNumber"
+            android:layout_toRightOf="@+id/setsNumber"
+            android:text="@string/by"
+            android:textColor="@color/colorText"/>
+
+        <TextView
+            android:id="@+id/repsNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toEndOf="@+id/byText"
+            android:layout_toRightOf="@+id/byText"
+            android:text="10"
+            android:textColor="@color/colorText"/>
+
+        <TextView
+            android:id="@+id/textView17"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/repsNumber"
+            android:layout_toEndOf="@+id/byText"
+            android:layout_toRightOf="@+id/byText"
+            android:text="@string/reps"
+            android:textColor="@color/colorText"/>
+    </RelativeLayout>
+</GridLayout>

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -35,6 +36,8 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
 
     ListView randoWorkoutListView;
 
+    AdapterRandoWorkoutList randoWorkoutListAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,8 +46,12 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
         // base randoWorkoutListView on ArrayList of exercisesItems
         randoWorkoutListView = (ListView) findViewById(R.id.randomWorkoutList);
 
+        ArrayList<Exercise> randoWorkoutExerciseList = new ArrayList<>();
+
+        randoWorkoutListAdapter = new AdapterRandoWorkoutList(this, new ArrayList<Exercise>());
+
         //create ArrayAdapter for the randoWorkoutListView and set the text color to white
-        ArrayAdapter<String> randoWorkoutListAdapter = new ArrayAdapter<String>(
+        /*adapt ArrayAdapter<String> randoWorkoutListAdapter = new ArrayAdapter<String>(
                 this, android.R.layout.simple_list_item_1, new ArrayList<String>()){
 
             @Override
@@ -59,8 +66,9 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
 
             }
 
-        };
+        };*/
 
+        /*adapt randoWorkoutListView.setAdapter(randoWorkoutListAdapter); */
         randoWorkoutListView.setAdapter(randoWorkoutListAdapter);
 
         // determine which muscles were picked from WorkoutParameterSelectionActivity
@@ -89,14 +97,16 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
 
     }
 
-    private class TaskToGenerateWorkout extends AsyncTask<String, String, String> {
+    private class TaskToGenerateWorkout extends AsyncTask<String, Exercise, String> {
 
-        ArrayAdapter<String> randoWorkoutListAdapter;
+        /*adapt ArrayAdapter<String> randoWorkoutListAdapter; */
+        AdapterRandoWorkoutList randoWorkoutListAdapter;
 
         @Override
         protected void onPreExecute() {
 
-            randoWorkoutListAdapter= (ArrayAdapter<String>)randoWorkoutListView.getAdapter();
+            /*randoWorkoutListAdapter= (ArrayAdapter<String>)randoWorkoutListView.getAdapter();*/
+            randoWorkoutListAdapter = (AdapterRandoWorkoutList)randoWorkoutListView.getAdapter();
 
             //randoWorkoutListAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, randoWorkoutExerciseList);
 
@@ -104,6 +114,8 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String... muscle) {
+
+            Exercise randoExerciseOne, randoExerciseTwo, randoExerciseThree;
 
             // Get all exercises for selected muscles from REST API
             JSONArray firstMuscleExerciseList = getFullExerciseListForMuscle(muscle[0]);
@@ -132,7 +144,9 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
 
                 exerciseName = firstExercise.getString("name");
 
-                publishProgress(exerciseName);
+                randoExerciseOne = new Exercise(firstExercise.getString("name"), firstExercise.getString("description"), firstExercise.getInt("category"));
+
+                publishProgress(randoExerciseOne);
 
 
                 secondExerciseIndex = randomNumber.nextInt(firstMuscleExerciseListSize);
@@ -149,7 +163,9 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
 
                 exerciseName = secondExercise.getString("name");
 
-                publishProgress(exerciseName);
+                randoExerciseTwo = new Exercise(secondExercise.getString("name"), secondExercise.getString("description"), secondExercise.getInt("category"));
+
+                publishProgress(randoExerciseTwo);
 
 
                 thirdExerciseIndex = randomNumber.nextInt(firstMuscleExerciseListSize);
@@ -166,7 +182,9 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
 
                 exerciseName = thirdExercise.getString("name");
 
-                publishProgress(exerciseName);
+                randoExerciseThree = new Exercise(thirdExercise.getString("name"), thirdExercise.getString("description"), thirdExercise.getInt("category"));
+
+                publishProgress(randoExerciseThree);
 
 
                 return "exercises added";
@@ -180,9 +198,12 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onProgressUpdate(String... values) {
+        protected void onProgressUpdate(Exercise... exercise) {
 
-            randoWorkoutListAdapter.add(values[0]);
+            Log.i("Got to progress", exercise[0].getExerciseName());
+            Log.i("Description", exercise[0].getExerciseDescription());
+
+            randoWorkoutListAdapter.add(exercise[0]);
 
             randoWorkoutListAdapter.notifyDataSetChanged();
 

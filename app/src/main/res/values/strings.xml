@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Rando Workout</string>
+
+    <string name="reps">reps</string>
+
+    <string name="sets">sets</string>
+
+    <string name="by">x</string>
+
 </resources>
