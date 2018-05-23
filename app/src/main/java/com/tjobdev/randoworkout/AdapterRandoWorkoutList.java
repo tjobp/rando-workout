@@ -42,7 +42,7 @@ public class AdapterRandoWorkoutList extends ArrayAdapter<Exercise> {
         View listItem = convertView;
 
         if(listItem == null) {
-            listItem = LayoutInflater.from(randoWorkoutListContext).inflate(R.layout.list_view_exercise, parent, false);
+            listItem = LayoutInflater.from(randoWorkoutListContext).inflate(R.layout.list_view_exercises, parent, false);
         }
 
         Exercise currentExercise = randoWorkoutExerciseList.get(position);
@@ -54,7 +54,7 @@ public class AdapterRandoWorkoutList extends ArrayAdapter<Exercise> {
         sets.setText("3");
 
         TextView reps = (TextView) listItem.findViewById(R.id.repsNumber);
-        sets.setText("10");
+        reps.setText("10");
 
         return listItem;
 
