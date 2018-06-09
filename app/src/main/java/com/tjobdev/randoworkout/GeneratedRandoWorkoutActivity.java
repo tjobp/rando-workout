@@ -1,5 +1,9 @@
 package com.tjobdev.randoworkout;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -9,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -50,25 +55,6 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
 
         randoWorkoutListAdapter = new AdapterRandoWorkoutList(this, new ArrayList<Exercise>());
 
-        //create ArrayAdapter for the randoWorkoutListView and set the text color to white
-        /*adapt ArrayAdapter<String> randoWorkoutListAdapter = new ArrayAdapter<String>(
-                this, android.R.layout.simple_list_item_1, new ArrayList<String>()){
-
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                View view =super.getView(position, convertView, parent);
-
-                TextView textView=(TextView) view.findViewById(android.R.id.text1);
-
-                textView.setTextColor(Color.WHITE);
-
-                return view;
-
-            }
-
-        };*/
-
-        /*adapt randoWorkoutListView.setAdapter(randoWorkoutListAdapter); */
         randoWorkoutListView.setAdapter(randoWorkoutListAdapter);
 
         // determine which muscles were picked from WorkoutParameterSelectionActivity
@@ -95,11 +81,30 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
         muscleNamesAndIds.put("Traps", 9); //Trapezius
         muscleNamesAndIds.put("Back", 12); //Latissimus dorsi
 
+        // display dialog when exercise is selected from list view
+        randoWorkoutListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+
+                Log.d("lvi clicked", "in hurr");
+
+                Exercise exerciseItemClicked = (Exercise) adapterView.getItemAtPosition(position);
+
+                DialogFragment exerciseInfoFragment = AlertDialogExerciseInfo.newInstance(1, exerciseItemClicked);
+
+                exerciseInfoFragment.show(getFragmentManager(), "exercise" + position);
+
+            }
+
+        });
+
     }
+
+
 
     private class TaskToGenerateWorkout extends AsyncTask<String, Exercise, String> {
 
-        /*adapt ArrayAdapter<String> randoWorkoutListAdapter; */
         AdapterRandoWorkoutList randoWorkoutListAdapter;
 
         @Override
