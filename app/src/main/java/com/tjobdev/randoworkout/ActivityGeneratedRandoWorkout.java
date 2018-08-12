@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.SQLException;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -32,9 +33,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Random;
 
-public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
+public class ActivityGeneratedRandoWorkout extends AppCompatActivity {
 
     // Hashtable to map muscle name to its ID number (for REST API)
     Hashtable<String, Integer> muscleNamesAndIds = new Hashtable<String, Integer>();
@@ -43,10 +45,15 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
 
     AdapterRandoWorkoutList randoWorkoutListAdapter;
 
+    DatabaseHelper exerciseDatabaseHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_generated_random_workout);
+
+        // instantiate databasehelper
+        exerciseDatabaseHelper = DatabaseHelper.getInstance(getApplicationContext());
 
         // base randoWorkoutListView on ArrayList of exercisesItems
         randoWorkoutListView = (ListView) findViewById(R.id.randomWorkoutList);
@@ -66,10 +73,6 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
         Log.i("First Muscle", firstMuscle);
         Log.i("Second Muscle", secondMuscle);
 
-        new TaskToGenerateWorkout().execute(firstMuscle);
-
-        new TaskToGenerateWorkout().execute(secondMuscle);
-
         // map muscles to their IDs (for REST API)
         muscleNamesAndIds.put("Biceps", 1); //Biceps brachii (Biceps femoris are 11)
         muscleNamesAndIds.put("Shoulders", 2); //Anterior deltoid
@@ -80,6 +83,13 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
         muscleNamesAndIds.put("Legs", 8); //Gluteus maximus (quads are 10)
         muscleNamesAndIds.put("Traps", 9); //Trapezius
         muscleNamesAndIds.put("Back", 12); //Latissimus dorsi
+
+        new TaskToGenerateWorkout().execute(firstMuscle);
+
+        new TaskToGenerateWorkout().execute(secondMuscle);
+
+        // close the exercise database
+        exerciseDatabaseHelper.close();
 
         // display dialog when exercise is selected from list view
         randoWorkoutListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -101,11 +111,11 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
 
     }
 
-
-
     private class TaskToGenerateWorkout extends AsyncTask<String, Exercise, String> {
 
         AdapterRandoWorkoutList randoWorkoutListAdapter;
+
+        List<Exercise> fullMuscleExerciseList = new ArrayList<Exercise>();
 
         @Override
         protected void onPreExecute() {
@@ -115,6 +125,18 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
 
             //randoWorkoutListAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, randoWorkoutExerciseList);
 
+            // connect to the exercise database
+            try {
+
+                // open the exercise database
+                exerciseDatabaseHelper.openDatabase();
+
+            } catch (SQLException sqle) {
+
+                throw sqle;
+
+            }
+
         }
 
         @Override
@@ -122,37 +144,52 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
 
             Exercise randoExerciseOne, randoExerciseTwo, randoExerciseThree;
 
+            // Get all exercises for selected muscle from exercise database
+            // query the exercise database for all exercises
+            try {
+
+                Log.i("muscle id", Integer.toString(muscleNamesAndIds.get(muscle[0])));
+                fullMuscleExerciseList = exerciseDatabaseHelper.getExercises(muscleNamesAndIds.get(muscle[0]));
+
+            } catch (SQLException sqle) {
+
+                throw sqle;
+            }
+
             // Get all exercises for selected muscles from REST API
-            JSONArray firstMuscleExerciseList = getFullExerciseListForMuscle(muscle[0]);
+            //JSONArray firstMuscleExerciseList = getFullExerciseListForMuscle(muscle[0]);
 
             // Array for final workout list (3 exercises from each muscle)
-            JSONArray randoWorkout = new JSONArray();
+            List<Exercise> randoWorkout = new ArrayList<Exercise>();
+            //JSONArray randoWorkout = new JSONArray();
 
             JSONObject jsonData = null;
             String exerciseName = "";
 
-            int firstMuscleExerciseListSize = firstMuscleExerciseList.length();
+            int firstMuscleExerciseListSize = fullMuscleExerciseList.size();
+            //int firstMuscleExerciseListSize = firstMuscleExerciseList.length();
 
             Random randomNumber = new Random();
             int firstExerciseIndex, secondExerciseIndex, thirdExerciseIndex;
 
-            JSONObject firstExercise, secondExercise, thirdExercise;
+            Exercise firstExercise, secondExercise, thirdExercise;
+            //JSONObject firstExercise, secondExercise, thirdExercise;
 
             // Randomly select 3 exercises from each exercise list and push each one to the list view on the Main UI thread
             try {
 
                 firstExerciseIndex = randomNumber.nextInt(firstMuscleExerciseListSize);
 
-                firstExercise = firstMuscleExerciseList.getJSONObject(firstExerciseIndex);
+                firstExercise = fullMuscleExerciseList.get(firstExerciseIndex);
+                //firstExercise = firstMuscleExerciseList.getJSONObject(firstExerciseIndex);
 
-                randoWorkout.put(firstExercise);
+                randoWorkout.add(firstExercise);
+                //randoWorkout.put(firstExercise);
 
-                exerciseName = firstExercise.getString("name");
+                //randoExerciseOne = new Exercise(firstExercise.getString("name"), firstExercise.getString("description"), firstExercise.getInt("category"));
 
-                randoExerciseOne = new Exercise(firstExercise.getString("name"), firstExercise.getString("description"), firstExercise.getInt("category"));
-
-                publishProgress(randoExerciseOne);
-
+                publishProgress(firstExercise);
+                //publishProgress(randoExerciseOne);
 
                 secondExerciseIndex = randomNumber.nextInt(firstMuscleExerciseListSize);
 
@@ -162,15 +199,16 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
 
                 }
 
-                secondExercise = firstMuscleExerciseList.getJSONObject(secondExerciseIndex);
+                secondExercise = fullMuscleExerciseList.get(secondExerciseIndex);
+                //secondExercise = firstMuscleExerciseList.getJSONObject(secondExerciseIndex);
 
-                randoWorkout.put(secondExercise);
+                randoWorkout.add(secondExercise);
+                //randoWorkout.put(secondExercise);
 
-                exerciseName = secondExercise.getString("name");
+                //randoExerciseTwo = new Exercise(secondExercise.getString("name"), secondExercise.getString("description"), secondExercise.getInt("category"));
 
-                randoExerciseTwo = new Exercise(secondExercise.getString("name"), secondExercise.getString("description"), secondExercise.getInt("category"));
-
-                publishProgress(randoExerciseTwo);
+                publishProgress(secondExercise);
+                //publishProgress(randoExerciseTwo);
 
 
                 thirdExerciseIndex = randomNumber.nextInt(firstMuscleExerciseListSize);
@@ -181,20 +219,21 @@ public class GeneratedRandoWorkoutActivity extends AppCompatActivity {
 
                 }
 
-                thirdExercise = firstMuscleExerciseList.getJSONObject(thirdExerciseIndex);
+                thirdExercise = fullMuscleExerciseList.get(thirdExerciseIndex);
+                //thirdExercise = firstMuscleExerciseList.getJSONObject(thirdExerciseIndex);
 
-                randoWorkout.put(thirdExercise);
+                randoWorkout.add(thirdExercise);
+                //randoWorkout.put(thirdExercise);
 
-                exerciseName = thirdExercise.getString("name");
+                //randoExerciseThree = new Exercise(thirdExercise.getString("name"), thirdExercise.getString("description"), thirdExercise.getInt("category"));
 
-                randoExerciseThree = new Exercise(thirdExercise.getString("name"), thirdExercise.getString("description"), thirdExercise.getInt("category"));
-
-                publishProgress(randoExerciseThree);
+                publishProgress(thirdExercise);
+                //publishProgress(randoExerciseThree);
 
 
                 return "exercises added";
 
-                } catch (JSONException e) {
+                } catch (SQLException e) {
                     e.printStackTrace();
                 }
 

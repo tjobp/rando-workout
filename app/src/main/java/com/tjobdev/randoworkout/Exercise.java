@@ -19,13 +19,12 @@ public class Exercise {
     //private ArrayList<Integer> exercisePhotos = new ArrayList<Integer>();
 
     public Exercise(String          exerciseName,
-                    String          exerciseDescription,
-                    int             category)
+                    String          exerciseDescription)
     {
 
         this.exerciseName = exerciseName;
         this.exerciseDescription = exerciseDescription;
-        this.category = category;
+        //this.category = category;
 
     }
 
