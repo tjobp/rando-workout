@@ -9,8 +9,11 @@ import android.database.SQLException;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
@@ -48,9 +51,20 @@ public class ActivityGeneratedRandoWorkout extends AppCompatActivity {
     DatabaseHelper exerciseDatabaseHelper;
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.app_bar_rando_workout, menu);
+        return true;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_generated_random_workout);
+
+        // Setup action bar
+        Toolbar activityToolbar = (Toolbar) findViewById(R.id.toolbar_rando_workout);
+        setSupportActionBar(activityToolbar);
 
         // instantiate databasehelper
         exerciseDatabaseHelper = DatabaseHelper.getInstance(getApplicationContext());
@@ -109,6 +123,20 @@ public class ActivityGeneratedRandoWorkout extends AppCompatActivity {
 
         });
 
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_love:
+                Toast.makeText(this, "Cograts! You found love with a rando!!", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.action_settings:
+                Toast.makeText(this, "Settings selected", Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private class TaskToGenerateWorkout extends AsyncTask<String, Exercise, String> {

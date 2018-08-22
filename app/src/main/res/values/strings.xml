@@ -9,4 +9,8 @@
 
     <string name="sets">sets</string>
 
+    <!-- strings for app bar -->
+    <string name="action_love">Love</string>
+    <string name="action_settings">Settings</string>
+
 </resources>
