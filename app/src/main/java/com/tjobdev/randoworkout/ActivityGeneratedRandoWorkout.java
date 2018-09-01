@@ -50,6 +50,8 @@ public class ActivityGeneratedRandoWorkout extends AppCompatActivity {
 
     DatabaseHelper exerciseDatabaseHelper;
 
+    boolean activityIsLoved = false;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -88,6 +90,7 @@ public class ActivityGeneratedRandoWorkout extends AppCompatActivity {
         Log.i("Second Muscle", secondMuscle);
 
         // map muscles to their IDs (for REST API)
+        // TODO: clean the primaryMuscle IDs in the database
         muscleNamesAndIds.put("Biceps", 1); //Biceps brachii (Biceps femoris are 11)
         muscleNamesAndIds.put("Shoulders", 2); //Anterior deltoid
         muscleNamesAndIds.put("Chest", 4); //Pectoralis major
@@ -129,7 +132,14 @@ public class ActivityGeneratedRandoWorkout extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_love:
-                Toast.makeText(this, "Cograts! You found love with a rando!!", Toast.LENGTH_SHORT).show();
+                //View loveIcon = findViewById(R.id.toolbar_rando_workout).findViewById(R.id.action_love);
+                //MenuItem loveIcon = (MenuItem) findViewById(R.id.action_love);
+                //loveIcon.setIcon(R.drawable.ic_loved);
+
+                activityIsLoved = true;
+                invalidateOptionsMenu();
+                Toast.makeText(this, "Congrats! You found love with a rando!!", Toast.LENGTH_SHORT).show();
+
                 return true;
             case R.id.action_settings:
                 Toast.makeText(this, "Settings selected", Toast.LENGTH_SHORT).show();
@@ -137,6 +147,16 @@ public class ActivityGeneratedRandoWorkout extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        // TODO: check if false as well
+        if(activityIsLoved) {
+            menu.findItem(R.id.action_love).setIcon(R.drawable.ic_loved);
+        }
+        return super.onPrepareOptionsMenu(menu);
     }
 
     private class TaskToGenerateWorkout extends AsyncTask<String, Exercise, String> {
