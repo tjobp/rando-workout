@@ -1,10 +1,8 @@
 
 package com.tjobdev.randoworkout;
 
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -31,7 +29,6 @@ import java.util.ArrayList;
 
 public class ActivityWorkoutParametersSelection extends AppCompatActivity
 {
-
     // Spinner variables for muscle spinners
     Spinner   topMuscleSpinner;
     Spinner   bottomMuscleSpinner;
@@ -45,7 +42,7 @@ public class ActivityWorkoutParametersSelection extends AppCompatActivity
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_workout_parameters_selection );
 
-        // populate the exercise database
+        // populate the exercise database from the REST API
         // new GetJsonOfExercises().execute();
 
         // Instantiate spinners
@@ -75,21 +72,17 @@ public class ActivityWorkoutParametersSelection extends AppCompatActivity
         //   second array adapter based off of selection of first spinner
         bottomMuscleSpinner.setAdapter( arrayAdapter );
 
-        // connect to Exercise Database that is in the assets folder
+        // Connect to Exercise Database that is in the assets folder
         DatabaseHelper exerciseDatabaseHelper = DatabaseHelper.getInstance( getApplicationContext() );
 
         try
         {
-
-            // create the exercise database if it is not already created
+            // Create the exercise database if it is not already created
             exerciseDatabaseHelper.createDatabase();
-
         }
         catch( IOException e )
         {
-
             throw new Error( "Unable to create database" );
-
         }
 
     }
@@ -98,12 +91,10 @@ public class ActivityWorkoutParametersSelection extends AppCompatActivity
     // This function is called when the generateWorkoutButton is clicked
     public void generateWorkoutButtonClick( View v )
     {
-
         String firstMuscle = topMuscleSpinner.getSelectedItem().toString();
         String secondMuscle = bottomMuscleSpinner.getSelectedItem().toString();
 
         goToGeneratedRandoWorkoutActivity( firstMuscle, secondMuscle );
-
     }
 
 
@@ -111,7 +102,6 @@ public class ActivityWorkoutParametersSelection extends AppCompatActivity
     // 'ActivityGeneratedRandoWorkout'
     public void goToGeneratedRandoWorkoutActivity( String firstMuscle, String secondMuscle )
     {
-
         Intent goToRandoWorkoutActivityIntent = new Intent( getApplicationContext(), ActivityGeneratedRandoWorkout.class );
 
         goToRandoWorkoutActivityIntent.putExtra( "firstMuscle", firstMuscle );
@@ -119,17 +109,14 @@ public class ActivityWorkoutParametersSelection extends AppCompatActivity
         goToRandoWorkoutActivityIntent.putExtra( "secondMuscle", secondMuscle );
 
         startActivity( goToRandoWorkoutActivityIntent );
-
     }
 
 
-    // asynch task to populate database
+    // Asynch task to populate database from the REST API
     private class GetJsonOfExercises extends AsyncTask<String, String, JSONArray>
     {
-
         @Override protected JSONArray doInBackground( String... strings )
         {
-
             // temporary load of all muscle exercises to database
             URL popDbUrl;
             HttpURLConnection popDbUrlConnection;
@@ -138,7 +125,6 @@ public class ActivityWorkoutParametersSelection extends AppCompatActivity
 
             try
             {
-
                 popDbUrl = new URL( "https://wger.de/api/v2/exercise/?status=2&format=json&language=2&limit=200" );
 
                 Log.i( "Pop DB URL", "https://wger.de/api/v2/exercise/?status=2&format=json&language=2&limit=200" );
@@ -156,9 +142,7 @@ public class ActivityWorkoutParametersSelection extends AppCompatActivity
 
                 while( ( line = popDbBufferReader.readLine() ) != null )
                 {
-
                     buffer.append( line + "\n" );
-
                 }
 
                 // only return JSON Object containing list of exercises and their info - gets
@@ -186,10 +170,8 @@ public class ActivityWorkoutParametersSelection extends AppCompatActivity
 
                 for ( int i = 0; i < allExercises.length(); i++ )
                 {
-
                     try
                     {
-
                         Log.i( "Exercise Description", allExercises.getJSONObject( i ).getString( "description" ) );
                         String exerciseDescription = allExercises.getJSONObject( i ).getString( "description" );
                         exerciseDescription = exerciseDescription.replaceAll( "(<p>|</p>|<ul>|</ul>|<li>|</li>|<ol>|</ol>|<em>|</em>|')", "" );
@@ -234,15 +216,12 @@ public class ActivityWorkoutParametersSelection extends AppCompatActivity
                         // exerciseEquipment + " )");
 
                         Log.i( "Past INSERT", "successfully" );
-
                     }
                     catch( JSONException e )
                     {
-
                         Toast.makeText( ActivityWorkoutParametersSelection.this, "Error " + e.toString(), Toast.LENGTH_LONG ).show();
 
                         e.printStackTrace();
-
                     }
 
                     // query the database and display each entry
@@ -259,7 +238,6 @@ public class ActivityWorkoutParametersSelection extends AppCompatActivity
                     Log.d( "db ex primaryMuscle", primaryMuscle );
                     Log.d( "db ex secondaryMuscle", secondaryMuscles );
                     Log.d( "db ex equipment", equipment );
-
                 }
 
                 // end of populating database
@@ -282,5 +260,4 @@ public class ActivityWorkoutParametersSelection extends AppCompatActivity
             return popDbExerciseList;
         }
     }
-
 }

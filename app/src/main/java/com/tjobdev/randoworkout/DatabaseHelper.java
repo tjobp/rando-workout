@@ -26,7 +26,6 @@ import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper
 {
-
     // Declare database helper as a static instance variable and use the singelton
     // pattern to guarantee the singleton property
     private static DatabaseHelper dbInstance;
@@ -45,7 +44,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
     // constructor
     public static synchronized DatabaseHelper getInstance( Context context )
     {
-
         if( dbInstance == null )
         {
 
@@ -65,23 +63,18 @@ public class DatabaseHelper extends SQLiteOpenHelper
      */
     private DatabaseHelper( Context context )
     {
-
         super( context, DB_NAME, null, 1 );
 
         this.myContext = context;
-
-        // default when implemented this constructor
-        // super(context, name, factory, version);
     }
 
 
     /**
-     * Creates a empty database on the system and rewrites it with the Events
+     * Creates an empty database on the system and rewrites it with the Events
      * database from the assets folder.
      **/
     public void createDatabase() throws IOException
     {
-
         boolean dbExist = checkDatabase();
 
         if( dbExist )
@@ -91,7 +84,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
         }
         else
         {
-
             // By calling this method an empty database will be created into the default
             // system path
             // of application so we are gonna be able to overwrite that database with our
@@ -100,37 +92,28 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
             try
             {
-
                 Log.i( "createDatabase()", "database copied" );
                 copyDatabase();
-
             }
             catch( IOException e )
             {
-
                 throw new Error( "Error copying database createDatabase()" );
-
             }
         }
-
     }
 
 
     @Override public void onCreate( SQLiteDatabase sqLiteDatabase )
     {
-
         boolean dbExists = checkDatabase();
 
         if( dbExists )
         {
-
             Log.i( "onCreate()", "database exists" );
             // do nothing - database already exists
-
         }
         else
         {
-
             // By calling this method an empty database will be created into the default
             // system path
             // of your application so we are gonna be able to overwrite that database with
@@ -183,28 +166,22 @@ public class DatabaseHelper extends SQLiteOpenHelper
      */
     private boolean checkDatabase()
     {
-
         SQLiteDatabase checkDB = null;
 
         try
         {
             String myPath = DB_PATH + DB_NAME;
             checkDB = SQLiteDatabase.openDatabase( myPath, null, SQLiteDatabase.OPEN_READONLY );
-
         }
         catch( SQLiteException e )
         {
-
             // database does't exist yet.
             Log.e( "SQLiteException", "database doesn't exist yet" );
-
         }
 
         if( checkDB != null )
         {
-
             checkDB.close();
-
         }
 
         return checkDB != null ? true : false;
@@ -218,7 +195,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
      */
     private void copyDatabase() throws IOException
     {
-
         // Open your local db as the input stream
         InputStream myInput = myContext.getAssets().open( DB_NAME );
 
@@ -240,23 +216,19 @@ public class DatabaseHelper extends SQLiteOpenHelper
         myOutput.flush();
         myOutput.close();
         myInput.close();
-
     }
 
 
     public void openDatabase() throws SQLException
     {
-
         // Open the database
         String myPath = DB_PATH + DB_NAME;
         myDatabase = SQLiteDatabase.openDatabase( myPath, null, SQLiteDatabase.OPEN_READONLY );
-
     }
 
 
     public List<Exercise> getExercises( int selectedMuscle )
     {
-
         List<Exercise> muscleExerciseList = new ArrayList<Exercise>();
 
         SQLiteDatabase exerciseDatabase = this.getReadableDatabase();
@@ -294,7 +266,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
         }
 
         return muscleExerciseList;
-
     }
 
 }

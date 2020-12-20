@@ -3,12 +3,10 @@ package com.tjobdev.randoworkout;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,11 +17,12 @@ import android.widget.TextView;
  * Created by obp on 5/27/18.
  */
 
-public class AlertDialogExerciseInfo extends DialogFragment {
-
+public class AlertDialogExerciseInfo extends DialogFragment
+{
     private Exercise exerciseWithInfo;
 
-    public static AlertDialogExerciseInfo newInstance(int arg, Exercise exerciseWithInfo) {
+    public static AlertDialogExerciseInfo newInstance(int arg, Exercise exerciseWithInfo)
+    {
 
         AlertDialogExerciseInfo alertDialogExerciseInfo = new AlertDialogExerciseInfo();
         Bundle args = new Bundle();
@@ -34,15 +33,16 @@ public class AlertDialogExerciseInfo extends DialogFragment {
 
     }
 
-    public void setExercise(Exercise exerciseWithInfo) {
+    public void setExercise(Exercise exerciseWithInfo)
+    {
 
         this.exerciseWithInfo = exerciseWithInfo;
 
     }
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-
+    public Dialog onCreateDialog(Bundle savedInstanceState)
+    {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
 
         String exerciseDescription = exerciseWithInfo.getExerciseDescription().replaceAll("(<p>|</p>)", "");
@@ -63,10 +63,11 @@ public class AlertDialogExerciseInfo extends DialogFragment {
         exerciseDescriptionTextView.setText(exerciseDescription);
 
         Button gotItButton = (Button) dialogView.findViewById(R.id.gotItButton);
-        gotItButton.setOnClickListener(new View.OnClickListener() {
-
+        gotItButton.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View view) {
+            public void onClick(View view)
+            {
                 getDialog().dismiss();
             }
         });
@@ -74,13 +75,12 @@ public class AlertDialogExerciseInfo extends DialogFragment {
         setRetainInstance(true);
 
         return alertDialogBuilder.create();
-
     }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState)
+    {
         // delete background of alert default so it looks like corners are rounded
         getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 

@@ -1,15 +1,12 @@
 package com.tjobdev.randoworkout;
 
-import android.graphics.Bitmap;
-
-import java.util.ArrayList;
 
 /**
  * Created by obp on 4/19/18.
  */
 
-public class Exercise {
-
+public class Exercise
+{
     private String exerciseName;
     //private int[] primaryMuscleExercised;
     //private int[] secondaryMusclesExercised;
@@ -21,36 +18,38 @@ public class Exercise {
     public Exercise(String          exerciseName,
                     String          exerciseDescription)
     {
-
         this.exerciseName = exerciseName;
         this.exerciseDescription = exerciseDescription;
         //this.category = category;
-
     }
 
-    public String getExerciseName() {
+    public String getExerciseName()
+    {
         return exerciseName;
     }
 
-    public void setExerciseName(String exerciseName) {
+    public void setExerciseName(String exerciseName)
+    {
         this.exerciseName = exerciseName;
     }
 
-    public String getExerciseDescription() {
+    public String getExerciseDescription()
+    {
         return exerciseDescription;
     }
 
-    public void setExerciseDescription(String exerciseDescription) {
+    public void setExerciseDescription(String exerciseDescription)
+    {
         this.exerciseDescription = exerciseDescription;
     }
 
-    public int getCategory() {
+    public int getCategory()
+    {
         return category;
     }
 
-    public void setCategory(int category) {
+    public void setCategory(int category)
+    {
         this.category = category;
     }
-
-
 }

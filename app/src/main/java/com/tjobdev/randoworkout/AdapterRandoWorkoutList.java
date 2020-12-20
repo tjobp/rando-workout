@@ -18,14 +18,15 @@ import java.util.List;
  * Created by obp on 5/21/18.
  */
 
-public class AdapterRandoWorkoutList extends ArrayAdapter<Exercise> {
-
+public class AdapterRandoWorkoutList extends ArrayAdapter<Exercise>
+{
     private Context randoWorkoutListContext;
 
     private List<Exercise> randoWorkoutExerciseList = new ArrayList<>();
 
 
-    public AdapterRandoWorkoutList(@NonNull Context context, @NonNull List<Exercise> objects) {
+    public AdapterRandoWorkoutList(@NonNull Context context, @NonNull List<Exercise> objects)
+    {
 
         super(context, 0, objects);
 
@@ -37,11 +38,13 @@ public class AdapterRandoWorkoutList extends ArrayAdapter<Exercise> {
 
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent)
+    {
 
         View listItem = convertView;
 
-        if(listItem == null) {
+        if(listItem == null)
+        {
             listItem = LayoutInflater.from(randoWorkoutListContext).inflate(R.layout.list_view_exercises, parent, false);
         }
 

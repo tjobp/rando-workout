@@ -1,13 +1,9 @@
 
 package com.tjobdev.randoworkout;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.SQLException;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,12 +12,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -43,7 +35,6 @@ import java.util.Random;
 
 public class ActivityGeneratedRandoWorkout extends AppCompatActivity
 {
-
     // Hashtable to map muscle name to its ID number (for REST API)
     Hashtable<String, Integer> muscleNamesAndIds = new Hashtable<String, Integer>();
 
@@ -94,7 +85,7 @@ public class ActivityGeneratedRandoWorkout extends AppCompatActivity
         Log.i( "First Muscle", firstMuscle );
         Log.i( "Second Muscle", secondMuscle );
 
-        // map muscles to their IDs (for REST API)
+        // Map muscles to their IDs (matching REST API IDs)
         // TODO: clean the primaryMuscle IDs in the database
         muscleNamesAndIds.put( "Biceps", 1 ); // Biceps brachii (Biceps femoris are 11)
         muscleNamesAndIds.put( "Shoulders", 2 ); // Anterior deltoid
@@ -110,13 +101,13 @@ public class ActivityGeneratedRandoWorkout extends AppCompatActivity
 
         new TaskToGenerateWorkout().execute( secondMuscle );
 
-        // display dialog when exercise is selected from list view
+        // Display dialog when exercise is selected from list view
         randoWorkoutListView.setOnItemClickListener( new AdapterView.OnItemClickListener() {
 
             @Override public void onItemClick( AdapterView<?> adapterView, View view, int position, long l )
             {
 
-                Log.d( "lvi clicked", "in hurr" );
+                Log.d( "List View Item clicked", "position: " + position );
 
                 Exercise exerciseItemClicked = (Exercise) adapterView.getItemAtPosition( position );
 
@@ -128,7 +119,7 @@ public class ActivityGeneratedRandoWorkout extends AppCompatActivity
 
         } );
 
-        // close the exercise database
+        // Close the exercise database
         exerciseDatabaseHelper.close();
 
     }
@@ -138,38 +129,38 @@ public class ActivityGeneratedRandoWorkout extends AppCompatActivity
     {
         switch( item.getItemId() )
         {
-        case R.id.action_love:
-            // View loveIcon =
-            // findViewById(R.id.toolbar_rando_workout).findViewById(R.id.action_love);
-            // MenuItem loveIcon = (MenuItem) findViewById(R.id.action_love);
-            // loveIcon.setIcon(R.drawable.ic_loved);
+            case R.id.action_love:
+                // View loveIcon =
+                // findViewById(R.id.toolbar_rando_workout).findViewById(R.id.action_love);
+                // MenuItem loveIcon = (MenuItem) findViewById(R.id.action_love);
+                // loveIcon.setIcon(R.drawable.ic_loved);
 
-            if( activityIsLoved )
-            {
-                // TODO: unlove workout
+                if( activityIsLoved )
+                {
+                    // TODO: unlove workout
 
-                // remove the workout from the saved workouts database table
+                    // Remove the workout from the saved workouts database table
 
-                item.setIcon( R.drawable.ic_not_loved );
+                    item.setIcon( R.drawable.ic_not_loved );
 
-                activityIsLoved = false;
-            }
-            else
-            {
-                invalidateOptionsMenu();
-                Toast.makeText( this, "Congrats! You found love with a rando!!", Toast.LENGTH_SHORT ).show();
+                    activityIsLoved = false;
+                }
+                else
+                {
+                    invalidateOptionsMenu();
+                    Toast.makeText( this, "Congrats! You found love with a rando!!", Toast.LENGTH_SHORT ).show();
 
-                // add the workout to the saved workouts database table
+                    // TODO: Add the workout to the saved workouts database table
 
-                activityIsLoved = true;
-            }
+                    activityIsLoved = true;
+                }
 
-            return true;
-        case R.id.action_settings:
-            Toast.makeText( this, "Settings selected", Toast.LENGTH_SHORT ).show();
-            return true;
-        default:
-            return super.onOptionsItemSelected( item );
+                return true;
+            case R.id.action_settings:
+                Toast.makeText( this, "Settings selected", Toast.LENGTH_SHORT ).show();
+                return true;
+            default:
+                return super.onOptionsItemSelected( item );
         }
     }
 
@@ -196,28 +187,20 @@ public class ActivityGeneratedRandoWorkout extends AppCompatActivity
 
         @Override protected void onPreExecute()
         {
-
-            /*
-             * randoWorkoutListAdapter=
-             * (ArrayAdapter<String>)randoWorkoutListView.getAdapter();
-             */
             randoWorkoutListAdapter = (AdapterRandoWorkoutList) randoWorkoutListView.getAdapter();
 
-            // randoWorkoutListAdapter = new ArrayAdapter<String>(getApplicationContext(),
-            // android.R.layout.simple_list_item_1, randoWorkoutExerciseList);
-
-            // connect to the exercise database
+            // Connect to the exercise database
             try
             {
 
-                // open the exercise database
+                // Open the exercise database
                 exerciseDatabaseHelper.openDatabase();
 
             }
             catch( SQLException sqle )
             {
 
-                throw sqle;
+                Log.e( "Database Exception: ",  sqle.toString());
 
             }
 
@@ -226,11 +209,8 @@ public class ActivityGeneratedRandoWorkout extends AppCompatActivity
 
         @Override protected String doInBackground( String... muscle )
         {
-
-            Exercise randoExerciseOne, randoExerciseTwo, randoExerciseThree;
-
             // Get all exercises for selected muscle from exercise database
-            // query the exercise database for all exercises
+            // Query the exercise database for all exercises
             try
             {
 
@@ -251,8 +231,8 @@ public class ActivityGeneratedRandoWorkout extends AppCompatActivity
             List<Exercise> randoWorkout = new ArrayList<Exercise>();
             // JSONArray randoWorkout = new JSONArray();
 
-            JSONObject jsonData = null;
-            String exerciseName = "";
+            // JSONObject jsonData = null;
+            // String exerciseName = "";
 
             int firstMuscleExerciseListSize = fullMuscleExerciseList.size();
             // int firstMuscleExerciseListSize = firstMuscleExerciseList.length();
@@ -324,7 +304,7 @@ public class ActivityGeneratedRandoWorkout extends AppCompatActivity
                 publishProgress( thirdExercise );
                 // publishProgress(randoExerciseThree);
 
-                return "exercises added";
+                return "Exercises added";
 
             }
             catch( SQLException e )
@@ -357,7 +337,8 @@ public class ActivityGeneratedRandoWorkout extends AppCompatActivity
 
         }
 
-
+        // Method for REST API - no longer being used because we are generating random exercise list
+        // from querying the exercise database
         protected JSONArray getFullExerciseListForMuscle( String muscle )
         {
 
